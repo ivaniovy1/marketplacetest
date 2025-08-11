@@ -1,1 +1,402 @@
-.
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Neon Market Lite</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    font-family: 'Orbitron', monospace;
+    color: #0ff;
+    overflow-x: hidden;
+  }
+  .layer-bg {
+    position: fixed;
+    width: 120%;
+    height: 120%;
+    top: -10%;
+    left: -10%;
+    background:
+      radial-gradient(circle at 30% 30%, #00fff7aa, transparent 50%),
+      radial-gradient(circle at 70% 70%, #ff00ffaa, transparent 40%);
+    filter: blur(80px);
+    animation: bgMove 30s linear infinite;
+    z-index: 0;
+  }
+  @keyframes bgMove {
+    0% { background-position: 30% 30%, 70% 70%; }
+    50% { background-position: 70% 70%, 30% 30%; }
+    100% { background-position: 30% 30%, 70% 70%; }
+  }
+  .container {
+    position: relative;
+    z-index: 10;
+    max-width: 600px;
+    margin: 3em auto;
+    background: rgba(0,0,0,0.5);
+    padding: 2em;
+    border-radius: 15px;
+    box-shadow:
+      0 0 15px #0ff,
+      0 0 40px #0ff;
+  }
+  h1 {
+    text-align: center;
+    font-size: 2.5em;
+    text-shadow:
+      0 0 8px #0ff,
+      0 0 20px #0ff,
+      0 0 30px #0ff;
+    margin-bottom: 0.5em;
+  }
+  input, button, select, textarea {
+    font-family: 'Orbitron', monospace;
+    font-size: 1em;
+    padding: 0.5em 1em;
+    margin: 0.3em 0;
+    border: none;
+    border-radius: 8px;
+    outline: none;
+    background: rgba(0,255,255,0.1);
+    color: #0ff;
+    box-shadow:
+      0 0 5px #0ff;
+    transition: background 0.3s ease;
+    width: 100%;
+  }
+  input:focus, textarea:focus, select:focus {
+    background: rgba(0,255,255,0.3);
+  }
+  button {
+    cursor: pointer;
+    box-shadow:
+      0 0 10px #0ff;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  button:hover {
+    background: #0ff;
+    color: #000;
+    box-shadow:
+      0 0 20px #0ff;
+  }
+  .hidden {
+    display: none;
+  }
+  .nav-buttons {
+    text-align: center;
+    margin-bottom: 1em;
+  }
+  .nav-buttons button {
+    margin: 0 10px;
+    width: auto;
+    min-width: 100px;
+  }
+  .neon-list {
+    margin-top: 1em;
+    list-style: none;
+    padding: 0;
+  }
+  .neon-list li {
+    background: rgba(0,255,255,0.1);
+    padding: 0.5em;
+    margin: 0.3em 0;
+    border-radius: 10px;
+    box-shadow:
+      0 0 5px #0ff;
+    display: flex;
+    justify-content: space-between;
+  }
+  .balance {
+    font-weight: 700;
+    color: #0ff;
+    text-shadow: 0 0 8px #0ff;
+    margin-bottom: 1em;
+  }
+  /* Скрытая кнопка для админки в углу */
+  #adminHiddenBtn {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    opacity: 0.03;
+    cursor: pointer;
+    z-index: 1000;
+  }
+  #adminPanel {
+    position: fixed;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111;
+    border: 2px solid #0ff;
+    border-radius: 15px;
+    padding: 1em;
+    width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow:
+      0 0 30px #0ff;
+    color: #0ff;
+    z-index: 2000;
+  }
+  #adminPanel h2 {
+    text-align: center;
+    margin-top: 0;
+  }
+  #adminPanel button {
+    width: auto;
+    margin-top: 0.5em;
+  }
+  .admin-user {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5em;
+    padding: 0.5em;
+    background: rgba(0,255,255,0.1);
+    border-radius: 8px;
+  }
+  .admin-user span {
+    flex: 1;
+  }
+</style>
+</head>
+<body>
+
+<div class="layer-bg"></div>
+
+<div class="container" id="mainContainer">
+
+  <h1>Neon Market Lite</h1>
+
+  <div class="nav-buttons" id="navButtons">
+    <button onclick="showSection('login')">Вход</button>
+    <button onclick="showSection('register')">Регистрация</button>
+    <button onclick="showSection('offers')" id="offersBtn" class="hidden">Офферы</button>
+    <button onclick="showSection('profile')" id="profileBtn" class="hidden">Профиль</button>
+  </div>
+
+  <!-- Вход -->
+  <div id="login" class="section">
+    <input type="text" id="loginUsername" placeholder="Логин" />
+    <input type="password" id="loginPassword" placeholder="Пароль" />
+    <button onclick="login()">Войти</button>
+    <p id="loginMessage"></p>
+  </div>
+
+  <!-- Регистрация -->
+  <div id="register" class="section hidden">
+    <input type="text" id="regUsername" placeholder="Придумайте логин" />
+    <input type="password" id="regPassword" placeholder="Придумайте пароль" />
+    <button onclick="register()">Зарегистрироваться</button>
+    <p id="registerMessage"></p>
+  </div>
+
+  <!-- Офферы -->
+  <div id="offers" class="section hidden">
+    <h2>Добавить оффер</h2>
+    <input type="text" id="offerTitle" placeholder="Название оффера" />
+    <textarea id="offerDesc" placeholder="Описание оффера" rows="3"></textarea>
+    <button onclick="addOffer()">Добавить оффер</button>
+    <ul id="offersList" class="neon-list"></ul>
+  </div>
+
+  <!-- Профиль -->
+  <div id="profile" class="section hidden">
+    <div class="balance">Баланс: <span id="userBalance">0</span> NEON</div>
+    <h3>Ваши офферы</h3>
+    <ul id="userOffers" class="neon-list"></ul>
+  </div>
+
+</div>
+
+<!-- Скрытая кнопка админки -->
+<div id="adminHiddenBtn" title="Не пугайся, это секрет :)"></div>
+
+<!-- Админка -->
+<div id="adminPanel" class="hidden">
+  <h2>Админ Панель</h2>
+  <div id="adminUsersList"></div>
+  <button onclick="closeAdmin()">Закрыть админку</button>
+</div>
+
+<script>
+  // Простая имитация базы данных в localStorage
+  let users = JSON.parse(localStorage.getItem('neonUsers')) || [];
+  let offers = JSON.parse(localStorage.getItem('neonOffers')) || [];
+
+  let currentUser = null;
+
+  // Показывать нужный раздел
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('hidden');
+
+    // Меняем видимость кнопок в меню
+    document.getElementById('offersBtn').classList.toggle('hidden', !currentUser);
+    document.getElementById('profileBtn').classList.toggle('hidden', !currentUser);
+  }
+
+  // Регистрация
+  function register() {
+    const username = document.getElementById('regUsername').value.trim();
+    const password = document.getElementById('regPassword').value.trim();
+    const msg = document.getElementById('registerMessage');
+
+    if(!username || !password) {
+      msg.textContent = 'Введите логин и пароль!';
+      return;
+    }
+    if(users.find(u => u.username === username)) {
+      msg.textContent = 'Такой пользователь уже существует.';
+      return;
+    }
+    const newUser = { username, password, balance: 100, offers: [] }; // стартовый баланс 100
+    users.push(newUser);
+    saveUsers();
+    msg.textContent = 'Успешно зарегистрированы! Теперь войдите.';
+    document.getElementById('regUsername').value = '';
+    document.getElementById('regPassword').value = '';
+  }
+
+  // Вход
+  function login() {
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+    const msg = document.getElementById('loginMessage');
+
+    const user = users.find(u => u.username === username && u.password === password);
+    if(!user) {
+      msg.textContent = 'Неверный логин или пароль!';
+      return;
+    }
+    currentUser = user;
+    msg.textContent = 'Добро пожаловать, ' + username + '!';
+    document.getElementById('loginUsername').value = '';
+    document.getElementById('loginPassword').value = '';
+    updateProfile();
+    showSection('offers');
+  }
+
+  // Добавить оффер
+  function addOffer() {
+    const title = document.getElementById('offerTitle').value.trim();
+    const desc = document.getElementById('offerDesc').value.trim();
+
+    if(!title || !desc) {
+      alert('Заполните название и описание оффера!');
+      return;
+    }
+    const offer = {
+      id: Date.now(),
+      user: currentUser.username,
+      title,
+      desc
+    };
+    offers.push(offer);
+    currentUser.offers.push(offer.id);
+    saveOffers();
+    saveUsers();
+    document.getElementById('offerTitle').value = '';
+    document.getElementById('offerDesc').value = '';
+    renderOffers();
+    updateProfile();
+  }
+
+  // Показать офферы всех пользователей
+  function renderOffers() {
+    const list = document.getElementById('offersList');
+    list.innerHTML = '';
+    offers.forEach(o => {
+      const li = document.createElement('li');
+      li.innerHTML = `<strong>${o.title}</strong> <br> <small>От: ${o.user}</small><br>${o.desc}`;
+      list.appendChild(li);
+    });
+  }
+
+  // Обновить профиль (баланс + офферы пользователя)
+  function updateProfile() {
+    if(!currentUser) return;
+    document.getElementById('userBalance').textContent = currentUser.balance;
+    const userOffers = document.getElementById('userOffers');
+    userOffers.innerHTML = '';
+    currentUser.offers.forEach(oid => {
+      const off = offers.find(o => o.id === oid);
+      if(off){
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${off.title}</strong><br>${off.desc}`;
+        userOffers.appendChild(li);
+      }
+    });
+  }
+
+  // Сохранить юзеров в localStorage
+  function saveUsers() {
+    localStorage.setItem('neonUsers', JSON.stringify(users));
+  }
+
+  // Сохранить офферы
+  function saveOffers() {
+    localStorage.setItem('neonOffers', JSON.stringify(offers));
+  }
+
+  // Скрытая кнопка — вход в админку
+  document.getElementById('adminHiddenBtn').addEventListener('click', () => {
+    const password = prompt('Введите пароль админа');
+    if(password === 'neonadmin123') {
+      openAdmin();
+    } else {
+      alert('Неверный пароль!');
+    }
+  });
+
+  // Открыть админку
+  function openAdmin() {
+    const panel = document.getElementById('adminPanel');
+    panel.classList.remove('hidden');
+    renderAdminUsers();
+  }
+
+  // Закрыть админку
+  function closeAdmin() {
+    document.getElementById('adminPanel').classList.add('hidden');
+  }
+
+  // Отобразить юзеров в админке
+  function renderAdminUsers() {
+    const list = document.getElementById('adminUsersList');
+    list.innerHTML = '';
+    users.forEach((u, i) => {
+      const div = document.createElement('div');
+      div.classList.add('admin-user');
+      div.innerHTML = `
+        <span>${u.username} | Баланс: ${u.balance}</span>
+        <button onclick="adminAddBalance(${i})">+100 NEON</button>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  // Админ накручивает баланс
+  function adminAddBalance(i) {
+    users[i].balance += 100;
+    saveUsers();
+    renderAdminUsers();
+    if(currentUser && currentUser.username === users[i].username) {
+      updateProfile();
+    }
+  }
+
+  // По умолчанию показываем вход
+  showSection('login');
+  renderOffers();
+
+</script>
+
+</body>
+</html>
