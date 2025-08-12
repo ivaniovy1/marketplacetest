@@ -1,402 +1,255 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Neon Market Lite</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
-  body, html {
-    margin: 0; padding: 0; height: 100%;
-    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-    font-family: 'Orbitron', monospace;
-    color: #0ff;
-    overflow-x: hidden;
-  }
-  .layer-bg {
-    position: fixed;
-    width: 120%;
-    height: 120%;
-    top: -10%;
-    left: -10%;
-    background:
-      radial-gradient(circle at 30% 30%, #00fff7aa, transparent 50%),
-      radial-gradient(circle at 70% 70%, #ff00ffaa, transparent 40%);
-    filter: blur(80px);
-    animation: bgMove 30s linear infinite;
-    z-index: 0;
-  }
-  @keyframes bgMove {
-    0% { background-position: 30% 30%, 70% 70%; }
-    50% { background-position: 70% 70%, 30% 30%; }
-    100% { background-position: 30% 30%, 70% 70%; }
-  }
-  .container {
-    position: relative;
-    z-index: 10;
-    max-width: 600px;
-    margin: 3em auto;
-    background: rgba(0,0,0,0.5);
-    padding: 2em;
-    border-radius: 15px;
-    box-shadow:
-      0 0 15px #0ff,
-      0 0 40px #0ff;
-  }
-  h1 {
-    text-align: center;
-    font-size: 2.5em;
-    text-shadow:
-      0 0 8px #0ff,
-      0 0 20px #0ff,
-      0 0 30px #0ff;
-    margin-bottom: 0.5em;
-  }
-  input, button, select, textarea {
-    font-family: 'Orbitron', monospace;
-    font-size: 1em;
-    padding: 0.5em 1em;
-    margin: 0.3em 0;
-    border: none;
-    border-radius: 8px;
-    outline: none;
-    background: rgba(0,255,255,0.1);
-    color: #0ff;
-    box-shadow:
-      0 0 5px #0ff;
-    transition: background 0.3s ease;
-    width: 100%;
-  }
-  input:focus, textarea:focus, select:focus {
-    background: rgba(0,255,255,0.3);
-  }
-  button {
-    cursor: pointer;
-    box-shadow:
-      0 0 10px #0ff;
-    font-weight: 700;
-    text-transform: uppercase;
-  }
-  button:hover {
-    background: #0ff;
-    color: #000;
-    box-shadow:
-      0 0 20px #0ff;
-  }
-  .hidden {
-    display: none;
-  }
-  .nav-buttons {
-    text-align: center;
-    margin-bottom: 1em;
-  }
-  .nav-buttons button {
-    margin: 0 10px;
-    width: auto;
-    min-width: 100px;
-  }
-  .neon-list {
-    margin-top: 1em;
-    list-style: none;
-    padding: 0;
-  }
-  .neon-list li {
-    background: rgba(0,255,255,0.1);
-    padding: 0.5em;
-    margin: 0.3em 0;
-    border-radius: 10px;
-    box-shadow:
-      0 0 5px #0ff;
-    display: flex;
-    justify-content: space-between;
-  }
-  .balance {
-    font-weight: 700;
-    color: #0ff;
-    text-shadow: 0 0 8px #0ff;
-    margin-bottom: 1em;
-  }
-  /* Скрытая кнопка для админки в углу */
-  #adminHiddenBtn {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 40px;
-    height: 40px;
-    opacity: 0.03;
-    cursor: pointer;
-    z-index: 1000;
-  }
-  #adminPanel {
-    position: fixed;
-    top: 5%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #111;
-    border: 2px solid #0ff;
-    border-radius: 15px;
-    padding: 1em;
-    width: 400px;
-    max-height: 80vh;
-    overflow-y: auto;
-    box-shadow:
-      0 0 30px #0ff;
-    color: #0ff;
-    z-index: 2000;
-  }
-  #adminPanel h2 {
-    text-align: center;
-    margin-top: 0;
-  }
-  #adminPanel button {
-    width: auto;
-    margin-top: 0.5em;
-  }
-  .admin-user {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.5em;
-    padding: 0.5em;
-    background: rgba(0,255,255,0.1);
-    border-radius: 8px;
-  }
-  .admin-user span {
-    flex: 1;
-  }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Futuristic Mini Marketplace — Demo</title>
+  <!-- Tailwind CDN for quick styling (works in preview) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Extra small polished styles */
+    body { background: radial-gradient(ellipse at 10% 10%, rgba(99,102,241,0.12), transparent 120px), #071025; color: #e6eef8; }
+    .glass { backdrop-filter: blur(8px) saturate(120%); background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.06); }
+    .accent { color: #7c3aed; }
+    .draggable { cursor: move; touch-action: none; }
+    .video-bg { position: absolute; inset:0; object-fit:cover; z-index:0; opacity:0.25; }
+  </style>
 </head>
-<body>
+<body class="min-h-screen antialiased relative overflow-hidden">
+  <!-- Background video placeholder -->
+  <video id="bgVideo" class="video-bg" autoplay muted loop playsinline></video>
 
-<div class="layer-bg"></div>
+  <div class="max-w-6xl mx-auto p-6 relative z-10">
+    <header class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold accent">Futuristic Mini Marketplace</h1>
+      <div class="flex gap-3 items-center">
+        <button id="adminBtn" class="px-3 py-2 rounded-lg glass text-sm">Admin</button>
+        <button id="regBtn" class="px-3 py-2 rounded-lg bg-violet-600/80 text-sm">Регистрация</button>
+      </div>
+    </header>
 
-<div class="container" id="mainContainer">
+    <main class="grid grid-cols-3 gap-6">
+      <!-- Left: Controls -->
+      <section class="col-span-1 glass p-4 rounded-xl">
+        <h2 class="text-lg font-semibold mb-2">Настройки аудио</h2>
+        <div class="space-y-3">
+          <label class="block text-xs">Громкость</label>
+          <input id="volume" type="range" min="0" max="1" step="0.01" value="0.5" />
 
-  <h1>Neon Market Lite</h1>
+          <label class="block text-xs">Басс (эквалайзер)</label>
+          <input id="bass" type="range" min="-30" max="30" step="1" value="0" />
 
-  <div class="nav-buttons" id="navButtons">
-    <button onclick="showSection('login')">Вход</button>
-    <button onclick="showSection('register')">Регистрация</button>
-    <button onclick="showSection('offers')" id="offersBtn" class="hidden">Офферы</button>
-    <button onclick="showSection('profile')" id="profileBtn" class="hidden">Профиль</button>
+          <label class="block text-xs">Мелодия (пример)</label>
+          <select id="musicSelect" class="w-full text-black">
+            <option value="sample1">Chill loop</option>
+            <option value="sample2">Synth arps</option>
+          </select>
+        </div>
+
+        <hr class="my-4 border-t border-white/6" />
+
+        <h2 class="text-lg font-semibold mb-2">Внешний вид</h2>
+        <div class="space-y-3">
+          <label class="block text-xs">Шрифт</label>
+          <select id="fontSelect" class="w-full text-black">
+            <option value="Inter, system-ui, sans-serif">Inter</option>
+            <option value="'Space Grotesk', sans-serif">Space Grotesk</option>
+            <option value="'Roboto', sans-serif">Roboto</option>
+          </select>
+
+          <label class="block text-xs">Цвет акцента</label>
+          <input id="accentColor" type="color" value="#8b5cf6" />
+        </div>
+
+        <hr class="my-4 border-t border-white/6" />
+
+        <h2 class="text-lg font-semibold mb-2">Фон видео / картинка</h2>
+        <input id="bgUpload" type="file" accept="video/*,image/*" class="w-full text-sm" />
+        <p class="text-xs mt-2 text-white/60">Загрузите видео (mp4/webm) или картинку — будет использовано как фон.</p>
+      </section>
+
+      <!-- Center: Marketplace / Offers -->
+      <section class="col-span-2 glass p-6 rounded-xl">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold">Офферы</h2>
+          <div class="flex gap-2 items-center">
+            <input id="offerText" placeholder="Название оффера" class="px-3 py-2 rounded-lg text-black" />
+            <button id="addOffer" class="px-3 py-2 bg-green-500 rounded-lg">Добавить</button>
+          </div>
+        </div>
+
+        <div id="offers" class="grid grid-cols-2 gap-4"></div>
+
+        <hr class="my-4 border-t border-white/6" />
+
+        <h3 class="font-semibold mb-2">Перетащите изображение (drag) — можно двигать</h3>
+        <div class="relative h-48 bg-white/3 rounded-xl flex items-center justify-center overflow-hidden">
+          <img id="draggableImg" src="https://images.unsplash.com/photo-1544465540-67a2b6b4b7d6?q=80&w=800&auto=format&fit=crop&s=placeholder" alt="draggable" class="draggable max-h-40" style="transform:translate(0px,0px) scale(1);" />
+        </div>
+      </section>
+
+      <!-- Bottom: Admin mockup / login -->
+      <section class="col-span-3 glass p-4 rounded-xl mt-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-semibold">Панель администратора (демо)</h3>
+            <p class="text-sm text-white/60">Нажмите Admin → Войти (пароль любой) — увидите список пользователей и возможность 'накрутить баланс'.</p>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-white/60">Demo accounts: user1 (balance 100), user2 (balance 50)</span>
+          </div>
+        </div>
+
+        <div id="adminPanel" class="hidden mt-4 border-t pt-4">
+          <div class="flex gap-4">
+            <div class="w-1/2">
+              <h4 class="font-medium">Пользователи</h4>
+              <ul id="userList" class="mt-2 space-y-2 text-sm"></ul>
+            </div>
+            <div class="w-1/2">
+              <h4 class="font-medium">Действия</h4>
+              <div class="mt-2 space-y-2">
+                <input id="targetUser" placeholder="название пользователя" class="px-3 py-2 rounded-lg text-black w-full" />
+                <input id="amount" type="number" placeholder="сумма" class="px-3 py-2 rounded-lg text-black w-full" />
+                <button id="boostBtn" class="px-3 py-2 bg-amber-500 rounded-lg w-full">Накрутить баланс</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="mt-6 text-xs text-white/50">Сделано автоматически — однофайловый прототип. Настройте и подключите серверную часть при необходимости.</footer>
   </div>
 
-  <!-- Вход -->
-  <div id="login" class="section">
-    <input type="text" id="loginUsername" placeholder="Логин" />
-    <input type="password" id="loginPassword" placeholder="Пароль" />
-    <button onclick="login()">Войти</button>
-    <p id="loginMessage"></p>
+  <!-- Admin Modal (simple) -->
+  <div id="modal" class="fixed inset-0 hidden items-center justify-center z-50">
+    <div class="w-full max-w-md p-6 glass rounded-xl">
+      <h3 class="text-lg font-semibold mb-3">Вход администратора</h3>
+      <input id="adminPass" type="password" placeholder="пароль" class="w-full px-3 py-2 rounded-lg text-black mb-3" />
+      <div class="flex justify-end gap-2">
+        <button id="modalCancel" class="px-3 py-2 rounded-lg">Отменить</button>
+        <button id="modalOk" class="px-3 py-2 bg-violet-600 rounded-lg">Войти</button>
+      </div>
+    </div>
   </div>
 
-  <!-- Регистрация -->
-  <div id="register" class="section hidden">
-    <input type="text" id="regUsername" placeholder="Придумайте логин" />
-    <input type="password" id="regPassword" placeholder="Придумайте пароль" />
-    <button onclick="register()">Зарегистрироваться</button>
-    <p id="registerMessage"></p>
-  </div>
+  <script>
+    // --- Simple in-memory demo data ---
+    const users = [ { name: 'user1', balance: 100 }, { name: 'user2', balance: 50 } ];
 
-  <!-- Офферы -->
-  <div id="offers" class="section hidden">
-    <h2>Добавить оффер</h2>
-    <input type="text" id="offerTitle" placeholder="Название оффера" />
-    <textarea id="offerDesc" placeholder="Описание оффера" rows="3"></textarea>
-    <button onclick="addOffer()">Добавить оффер</button>
-    <ul id="offersList" class="neon-list"></ul>
-  </div>
+    // --- UI elements ---
+    const adminBtn = document.getElementById('adminBtn');
+    const modal = document.getElementById('modal');
+    const modalOk = document.getElementById('modalOk');
+    const modalCancel = document.getElementById('modalCancel');
+    const adminPanel = document.getElementById('adminPanel');
+    const userList = document.getElementById('userList');
+    const boostBtn = document.getElementById('boostBtn');
+    const targetUser = document.getElementById('targetUser');
+    const amount = document.getElementById('amount');
 
-  <!-- Профиль -->
-  <div id="profile" class="section hidden">
-    <div class="balance">Баланс: <span id="userBalance">0</span> NEON</div>
-    <h3>Ваши офферы</h3>
-    <ul id="userOffers" class="neon-list"></ul>
-  </div>
-
-</div>
-
-<!-- Скрытая кнопка админки -->
-<div id="adminHiddenBtn" title="Не пугайся, это секрет :)"></div>
-
-<!-- Админка -->
-<div id="adminPanel" class="hidden">
-  <h2>Админ Панель</h2>
-  <div id="adminUsersList"></div>
-  <button onclick="closeAdmin()">Закрыть админку</button>
-</div>
-
-<script>
-  // Простая имитация базы данных в localStorage
-  let users = JSON.parse(localStorage.getItem('neonUsers')) || [];
-  let offers = JSON.parse(localStorage.getItem('neonOffers')) || [];
-
-  let currentUser = null;
-
-  // Показывать нужный раздел
-  function showSection(id) {
-    document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-    const el = document.getElementById(id);
-    if (el) el.classList.remove('hidden');
-
-    // Меняем видимость кнопок в меню
-    document.getElementById('offersBtn').classList.toggle('hidden', !currentUser);
-    document.getElementById('profileBtn').classList.toggle('hidden', !currentUser);
-  }
-
-  // Регистрация
-  function register() {
-    const username = document.getElementById('regUsername').value.trim();
-    const password = document.getElementById('regPassword').value.trim();
-    const msg = document.getElementById('registerMessage');
-
-    if(!username || !password) {
-      msg.textContent = 'Введите логин и пароль!';
-      return;
+    // --- Audio: basic WebAudio with bass control ---
+    let audioCtx, gainNode, bassFilter, audioEl, sourceNode;
+    function setupAudio() {
+      audioEl = new Audio();
+      audioEl.loop = true;
+      // small demo tone using WebAudio oscillator if no samples available
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      sourceNode = audioCtx.createMediaElementSource(audioEl);
+      bassFilter = audioCtx.createBiquadFilter(); bassFilter.type = 'lowshelf'; bassFilter.frequency.value = 200;
+      gainNode = audioCtx.createGain(); gainNode.gain.value = 0.5;
+      sourceNode.connect(bassFilter).connect(gainNode).connect(audioCtx.destination);
+      audioEl.src = ''; // set when user chooses sample
     }
-    if(users.find(u => u.username === username)) {
-      msg.textContent = 'Такой пользователь уже существует.';
-      return;
-    }
-    const newUser = { username, password, balance: 100, offers: [] }; // стартовый баланс 100
-    users.push(newUser);
-    saveUsers();
-    msg.textContent = 'Успешно зарегистрированы! Теперь войдите.';
-    document.getElementById('regUsername').value = '';
-    document.getElementById('regPassword').value = '';
-  }
+    setupAudio();
 
-  // Вход
-  function login() {
-    const username = document.getElementById('loginUsername').value.trim();
-    const password = document.getElementById('loginPassword').value.trim();
-    const msg = document.getElementById('loginMessage');
+    document.getElementById('volume').addEventListener('input', (e)=>{ if(gainNode) gainNode.gain.value = parseFloat(e.target.value); });
+    document.getElementById('bass').addEventListener('input', (e)=>{ if(bassFilter) bassFilter.gain.value = parseFloat(e.target.value); });
 
-    const user = users.find(u => u.username === username && u.password === password);
-    if(!user) {
-      msg.textContent = 'Неверный логин или пароль!';
-      return;
-    }
-    currentUser = user;
-    msg.textContent = 'Добро пожаловать, ' + username + '!';
-    document.getElementById('loginUsername').value = '';
-    document.getElementById('loginPassword').value = '';
-    updateProfile();
-    showSection('offers');
-  }
-
-  // Добавить оффер
-  function addOffer() {
-    const title = document.getElementById('offerTitle').value.trim();
-    const desc = document.getElementById('offerDesc').value.trim();
-
-    if(!title || !desc) {
-      alert('Заполните название и описание оффера!');
-      return;
-    }
-    const offer = {
-      id: Date.now(),
-      user: currentUser.username,
-      title,
-      desc
-    };
-    offers.push(offer);
-    currentUser.offers.push(offer.id);
-    saveOffers();
-    saveUsers();
-    document.getElementById('offerTitle').value = '';
-    document.getElementById('offerDesc').value = '';
-    renderOffers();
-    updateProfile();
-  }
-
-  // Показать офферы всех пользователей
-  function renderOffers() {
-    const list = document.getElementById('offersList');
-    list.innerHTML = '';
-    offers.forEach(o => {
-      const li = document.createElement('li');
-      li.innerHTML = `<strong>${o.title}</strong> <br> <small>От: ${o.user}</small><br>${o.desc}`;
-      list.appendChild(li);
+    // sample selection: using base64 small audio could be embedded, but leave demo to user
+    document.getElementById('musicSelect').addEventListener('change',(e)=>{
+      const v = e.target.value;
+      if(v==='sample1') { audioEl.src = ''; /* placeholder */ }
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+      audioEl.play().catch(()=>{});
     });
-  }
 
-  // Обновить профиль (баланс + офферы пользователя)
-  function updateProfile() {
-    if(!currentUser) return;
-    document.getElementById('userBalance').textContent = currentUser.balance;
-    const userOffers = document.getElementById('userOffers');
-    userOffers.innerHTML = '';
-    currentUser.offers.forEach(oid => {
-      const off = offers.find(o => o.id === oid);
-      if(off){
-        const li = document.createElement('li');
-        li.innerHTML = `<strong>${off.title}</strong><br>${off.desc}`;
-        userOffers.appendChild(li);
+    // --- Offers ---
+    const offersEl = document.getElementById('offers');
+    function renderUsers(){ userList.innerHTML = ''; users.forEach(u=>{ const li = document.createElement('li'); li.innerHTML = `<div class=\"flex justify-between bg-white/4 p-2 rounded\"><span>${u.name}</span><strong>${u.balance}</strong></div>`; userList.appendChild(li); }); }
+    renderUsers();
+
+    document.getElementById('addOffer').addEventListener('click', ()=>{
+      const text = document.getElementById('offerText').value.trim();
+      if(!text) return alert('Введите название оффера');
+      const card = document.createElement('div');
+      card.className = 'p-4 rounded-xl glass';
+      card.innerHTML = `<h4 class=\"font-semibold\">${escapeHtml(text)}</h4><p class=\"text-xs text-white/60 mt-2\">Описание демо. Цена: 10</p><div class=\"mt-3 flex gap-2\"><button class=\"buyBtn px-3 py-2 bg-blue-500 rounded\">Купить</button></div>`;
+      offersEl.prepend(card);
+      document.getElementById('offerText').value = '';
+    });
+
+    function escapeHtml(s){ return s.replace(/[&<>\"]/g, c=>({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c])); }
+
+    // draggable image logic (pointer events)
+    const img = document.getElementById('draggableImg');
+    let dragging = false, startX=0, startY=0, offsetX=0, offsetY=0;
+    img.addEventListener('pointerdown', (e)=>{ dragging=true; img.setPointerCapture(e.pointerId); startX=e.clientX; startY=e.clientY; const t = getTranslate(img); offsetX=t.x; offsetY=t.y; });
+    window.addEventListener('pointermove',(e)=>{ if(!dragging) return; const dx=e.clientX-startX; const dy=e.clientY-startY; img.style.transform = `translate(${offsetX+dx}px, ${offsetY+dy}px)`; });
+    window.addEventListener('pointerup',(e)=>{ dragging=false; try{ img.releasePointerCapture(e.pointerId);}catch(e){} });
+    function getTranslate(el){ const st = window.getComputedStyle(el); const tr = st.transform || 'none'; if(tr==='none') return {x:0,y:0}; const m = tr.match(/matrix\((.+)\)/); if(!m) return {x:0,y:0}; const nums = m[1].split(',').map(Number); return { x: nums[4], y: nums[5] }; }
+
+    // Admin modal handling
+    adminBtn.addEventListener('click', ()=>{ modal.classList.remove('hidden'); modal.classList.add('flex'); });
+    modalCancel.addEventListener('click', ()=>{ modal.classList.add('hidden'); modal.classList.remove('flex'); });
+    modalOk.addEventListener('click', ()=>{ const pw = document.getElementById('adminPass').value; // demo: any pw works
+      modal.classList.add('hidden'); modal.classList.remove('flex'); adminPanel.classList.toggle('hidden'); renderUsers();
+    });
+
+    boostBtn.addEventListener('click', ()=>{
+      const name = targetUser.value.trim(); const amt = Number(amount.value);
+      if(!name || !amt) return alert('Введите пользователя и сумму');
+      const u = users.find(x=>x.name===name);
+      if(u) { u.balance += amt; alert('Готово — баланс обновлён'); } else { users.push({ name, balance: amt }); alert('Создан пользователь и обновлён баланс'); }
+      renderUsers();
+    });
+
+    // Background upload handler (video or image)
+    const bgUpload = document.getElementById('bgUpload');
+    const bgVideo = document.getElementById('bgVideo');
+    bgUpload.addEventListener('change', (e)=>{
+      const f = e.target.files[0]; if(!f) return;
+      const url = URL.createObjectURL(f);
+      if(f.type.startsWith('video/')){ bgVideo.src = url; bgVideo.style.opacity = 0.35; bgVideo.play().catch(()=>{}); }
+      else if(f.type.startsWith('image/')){
+        // convert image to data URL and set as video background fallback via CSS
+        document.body.style.backgroundImage = `url(${url})`; document.body.style.backgroundSize = 'cover';
       }
     });
-  }
 
-  // Сохранить юзеров в localStorage
-  function saveUsers() {
-    localStorage.setItem('neonUsers', JSON.stringify(users));
-  }
+    // Font & accent color changes live
+    document.getElementById('fontSelect').addEventListener('change', (e)=>{ document.documentElement.style.setProperty('--demo-font', e.target.value); document.body.style.fontFamily = e.target.value; });
+    document.getElementById('accentColor').addEventListener('input', (e)=>{ document.querySelectorAll('.accent').forEach(el=>el.style.color = e.target.value); document.querySelectorAll('.glass').forEach(el=>el.style.borderColor = hexToRgba(e.target.value, 0.08)); });
+    function hexToRgba(hex, alpha){ const c = hex.replace('#',''); const bigint = parseInt(c,16); const r=(bigint>>16)&255; const g=(bigint>>8)&255; const b=bigint&255; return `rgba(${r},${g},${b},${alpha})`; }
 
-  // Сохранить офферы
-  function saveOffers() {
-    localStorage.setItem('neonOffers', JSON.stringify(offers));
-  }
-
-  // Скрытая кнопка — вход в админку
-  document.getElementById('adminHiddenBtn').addEventListener('click', () => {
-    const password = prompt('Введите пароль админа');
-    if(password === 'neonadmin123') {
-      openAdmin();
-    } else {
-      alert('Неверный пароль!');
-    }
-  });
-
-  // Открыть админку
-  function openAdmin() {
-    const panel = document.getElementById('adminPanel');
-    panel.classList.remove('hidden');
-    renderAdminUsers();
-  }
-
-  // Закрыть админку
-  function closeAdmin() {
-    document.getElementById('adminPanel').classList.add('hidden');
-  }
-
-  // Отобразить юзеров в админке
-  function renderAdminUsers() {
-    const list = document.getElementById('adminUsersList');
-    list.innerHTML = '';
-    users.forEach((u, i) => {
-      const div = document.createElement('div');
-      div.classList.add('admin-user');
-      div.innerHTML = `
-        <span>${u.username} | Баланс: ${u.balance}</span>
-        <button onclick="adminAddBalance(${i})">+100 NEON</button>
-      `;
-      list.appendChild(div);
+    // Small helpers
+    // Allow registration button to create a demo user
+    document.getElementById('regBtn').addEventListener('click', ()=>{
+      const name = prompt('Придумайте имя'); if(!name) return; users.push({ name, balance: 0 }); alert('Готово — пользователь создан'); renderUsers();
     });
-  }
 
-  // Админ накручивает баланс
-  function adminAddBalance(i) {
-    users[i].balance += 100;
-    saveUsers();
-    renderAdminUsers();
-    if(currentUser && currentUser.username === users[i].username) {
-      updateProfile();
-    }
-  }
+    // Basic persistence (localStorage) for offers and position
+    window.addEventListener('beforeunload', ()=>{
+      try{ localStorage.setItem('users_demo', JSON.stringify(users)); }catch(e){}
+    });
+    // restore
+    try{ const saved = JSON.parse(localStorage.getItem('users_demo')||'null'); if(saved && Array.isArray(saved)) { users.length=0; users.push(...saved); renderUsers(); } }catch(e){}
 
-  // По умолчанию показываем вход
-  showSection('login');
-  renderOffers();
+    // Accessibility: keyboard toggle admin with A
+    window.addEventListener('keydown',(e)=>{ if(e.key.toLowerCase()==='a' && (e.ctrlKey || e.metaKey)) adminPanel.classList.toggle('hidden'); });
 
-</script>
-
+    // End of script
+  </script>
 </body>
 </html>
